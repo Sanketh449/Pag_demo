@@ -1,0 +1,111 @@
+﻿@model PagedList.IPagedList<Pag_demo.Models.FileUploadLog>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "HomePage";
+}
+
+<html>
+<head>
+    <title>
+        Index
+    </title>
+</head>
+<body>
+    <div style="float:right">
+        @Html.ActionLink("Logout", "Login")
+    </div>
+    @if (Session["UserName"] != null)
+    {
+        <h3>Welcome  @Session["UserName"].ToString()</h3>
+    }
+    else
+    {
+        Response.Redirect("Login");
+    }
+    <div>
+        <h4>Excel Import</h4>
+        <form method="post" enctype="multipart/form-data">
+            <div>
+                <input name="file" type="file" required="required" /><br />
+                <button type="submit" style="color:black">Import</button>
+            </div>
+        </form>
+    </div>
+    <br /><br />
+
+    <div>
+        <div style="color:black">
+            @Html.DropDownList("display", new List<SelectListItem> { new SelectListItem { Text="5",Value="5"},
+                                                                   new SelectListItem { Text="10",Value="10"},
+                                                                   new SelectListItem { Text="15",Value="15"},
+                                                                   new SelectListItem { Text="20",Value="20"},
+                                                                   new SelectListItem { Text="25",Value="25"},
+                                                                   new SelectListItem { Text="30",Value="30"},
+                                                                   new SelectListItem { Text="Select All",Value="1000"}
+                                                                                                             })
+        </div>
+        <div style="float:right">
+
+            Page@(Model.PageCount< Model.PageNumber?0:Model.PageNumber) of @Model.PageCount @Html.PagedListPager(Model, Page_No => Url.Action("Index", new { Page_No, SortOrder = ViewBag.SortOrder, SortBy = ViewBag.SortBy }))
+        </div>
+
+
+        <table id="table" class="table table-hover">
+            <thead>
+                <tr>
+                    <th><abbr title="Click to Sort by ID">@Html.ActionLink("ID", "Index", new { SortOrder = ViewBag.SortOrder == null ? "Asc" : (ViewBag.SortOrder == "Asc" ? "Desc" : "Asc"), SortBy = "ID" })</abbr></th>
+                    <th><abbr title="Click to Sort by File Name">@Html.ActionLink("File Name", "Index", new { SortOrder = ViewBag.SortOrder == null ? "Asc" : (ViewBag.SortOrder == "Asc" ? "Desc" : "Asc"), SortBy = "File Name" })</abbr></th>
+                    <th><abbr title="Click to Sort by Date">@Html.ActionLink("Uploaded On", "Index", new { SortOrder = ViewBag.SortOrder == null ? "Asc" : (ViewBag.SortOrder == "Asc" ? "Desc" : "Asc"), SortBy = "Uploaded On" })</abbr></th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    <tbody>
+                        <tr>
+                            <td>@item.ID</td>
+                            <td>@item.FileName</td>
+                            <td>@item.UploadedOn</td>
+                            <td>@item.Status</td>
+                        </tr>
+                    </tbody>
+                }
+            }
+        </table>
+    </div>
+
+    @section scripts{
+        <script src="~/Scripts/jquery-3.6.0.js"></script>
+        <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+       @* <script src="https://cdn.jsdelivr.net/npm/jquery.fancytable/dist/fancyTable.min.js"></script>*@
+
+      @*  <script type="text/javascript">
+            $(document).ready(function () {
+                $("#sampleTable").fancyTable({
+                    sortColumn: 2,
+                    pagination: true,
+                    perPage: 5,
+                    globalSearch: true
+                });
+            });
+        </script>*@
+         <script type=" text/javascript">
+                $(document.body).on("change","#display",function(){
+                   var data = $("option:selected",this).val();
+                  $.ajax({
+                   type :"GET",
+                   URL : "/Home/Index/",
+                   data : {index:data},
+                   contentType : "Application/JSON"
+                  });
+                });
+
+            </script>
+    }
+</body>
+</html>
+
